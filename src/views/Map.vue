@@ -101,9 +101,12 @@
       };
     },
     methods: {
+      // Perform actions only if map element is ready
       mapsReady() {
+        // Return to first step if there's no data to show;
         if (!this.$store.state.markers.length > 0) {
           this.$router.push("/");
+          this.$store.commit("setProcessStep", 1);
           return;
         }
         this.map = this.$refs.myMap.mapObject;
@@ -115,6 +118,7 @@
         this.filteredMarkersList();
       },
 
+      // Calculate bounds to show all markers
       setMapBounds() {
         const boundsMarkersArr = this.$store.state.markers.map(
           i => i.coordinates
@@ -124,6 +128,7 @@
       },
 
       getCategories() {
+        // Select unique categories from dataset and count items per category
         this.unique(this.$store.state.markers.map(i => i.category)).forEach(
           i => {
             this.categories.push({
@@ -139,6 +144,7 @@
         return Array.from(new Set(arr));
       },
 
+      // Toggle elements on filters list
       toggleFilter(filterString) {
         const index = this.filters.indexOf(filterString);
         if (index > -1) {
@@ -147,15 +153,16 @@
         this.filteredMarkersList();
       },
 
+      // Updates list of markers to show
       filteredMarkersList() {
+        // If there's no filters, show all elements
         if (!this.filters.length) this.filteredList = this.$store.state.markers;
         else
           this.filteredList = this.$store.state.markers.filter(j =>
             this.filters.includes(j.category)
           );
       }
-    },
-    watch: {}
+    }
   };
 </script>
 

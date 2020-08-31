@@ -66,14 +66,18 @@
     data() {
       return {
         parsingProgress: 0,
-        locationObjects: [],
-        fileList: []
+        locationObjects: []
       };
     },
     methods: {
       findGeoPoints() {
+        // Increase steps progress;
         if (this.locationObjects) this.$store.commit("setProcessStep", 2);
+
+        // Counter for finished requests
         let counter = 0;
+
+        // Get geolocation for every address using nominatim
         for (let i = 0; i < this.locationObjects.length; i++) {
           let location = this.locationObjects[i];
           this.getDataFromExternalEndpoint(
@@ -84,6 +88,7 @@
               location.address
             )
           ).then(response => {
+            // Check if response is valid
             if (response.status === 200 && response.data && response.data[0]) {
               location.geo = {
                 lat: response.data[0].lat,
@@ -94,7 +99,9 @@
 
             counter++;
 
+            // If all requests are completed save data to store and go to next view
             if (counter === this.locationObjects.length) {
+              // Extract only needed data
               const markers = [];
               this.locationObjects.forEach(i => {
                 if (i.geo != null)
@@ -104,12 +111,18 @@
                     category: i.category
                   });
               });
+
+              // Save data to store
               this.$store.commit("setPointsData", markers);
+
+              // Ensure data is successfully saved before going further
               this.$nextTick(() => {
                 this.$store.commit("setProcessStep", 3);
                 router.push("/map");
               });
             }
+
+            // Handle progress
             this.parsingProgress = Math.round(
               (counter / this.locationObjects.length) * 100
             );
@@ -117,10 +130,12 @@
         }
       },
 
+      // Returns api endpoint ready for get request
       geoLocate(city, state, zipcode, address) {
         return `https://nominatim.openstreetmap.org/search?city=${city}&state${state}&postalcode=${zipcode}&street=${address}&format=json&accept-language=eng`;
       },
 
+      // Creates get request using axios
       getDataFromExternalEndpoint(endpoint) {
         return this.axios
           .get(endpoint)
@@ -133,7 +148,9 @@
           });
       }
     },
+
     mounted() {
+      // Applies styling for file upload input; it's template is not included into plugin
       document
         .getElementsByClassName("form-control-file")[0]
         ?.classList.add("el-button", "el-button--default");
@@ -155,6 +172,7 @@
         input,
         button {
           font-size: 1.25rem;
+          margin: auto;
         }
 
         .vue-csv-uploader-part-one {
@@ -196,6 +214,10 @@
                 }
               }
             }
+          }
+          .form-group {
+            margin-top: 10px;
+            text-align: center;
           }
         }
       }
