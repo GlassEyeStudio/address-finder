@@ -58,9 +58,12 @@
             this.getDataFromExternalEndpoint(
               this.geolocate(i.city, i.state, i.zipCode, i.address)
             ).then(response => {
-              console.log(response)
-              if (response.status === 200  && response.data && response.data[0])
-                i.geo = { lat: response.data[0].lat, long: response.data[0].lon };
+              console.log(response);
+              if (response.status === 200 && response.data && response.data[0])
+                i.geo = {
+                  lat: response.data[0].lat,
+                  long: response.data[0].lon
+                };
               else console.log("couldnt find geolocation for: " + i.address);
             });
           });
