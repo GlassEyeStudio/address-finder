@@ -1,16 +1,16 @@
 <template>
   <div id="app">
-    <CsvImporter />
+    <Map />
   </div>
 </template>
 
 <script>
-  import CsvImporter from "@/components/CsvImporter";
+  import Map from "@/components/Map";
 
   export default {
     name: "App",
     components: {
-      CsvImporter
+      Map
     }
   };
 </script>
@@ -23,5 +23,10 @@
     text-align: center;
     color: #2c3e50;
     margin-top: 60px;
+
+    .wrapper {
+      height: 80vh;
+      width: 100%;
+    }
   }
 </style>
