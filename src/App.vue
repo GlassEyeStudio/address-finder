@@ -1,10 +1,17 @@
 <template>
   <div id="app">
     <h1>Find Your Addresses!</h1>
-    <el-steps :active="$store.state.processStep" align-center>
-      <el-step title="Upload" description="Add addresses CSV file" />
-      <el-step title="Processing data" description="Wait untill we finish" />
-      <el-step title="Map" description="Watch your points on map" />
+    <el-button
+      class="floating"
+      type="success"
+      v-if="$store.state.processStep === 3"
+    >
+      New query
+    </el-button>
+    <el-steps :active="$store.state.processStep" simple>
+      <el-step title="Upload your CSV" icon="el-icon-upload" />
+      <el-step title="Let us do the magic" icon="el-icon-magic-stick" />
+      <el-step title="See results on the map" icon="el-icon-map-location" />
     </el-steps>
     <router-view />
   </div>
@@ -42,6 +49,11 @@
       width: 1270px;
       margin: 45px auto auto;
       text-align: left;
+    }
+    .floating {
+      position: fixed;
+      top: 50px;
+      left: 50px;
     }
   }
 </style>

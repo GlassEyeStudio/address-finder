@@ -17,10 +17,24 @@
           {{ category.name }}
         </el-button>
       </el-badge>
+      <el-button
+        size="small"
+        v-if="filters.length > 0"
+        type="danger"
+        plain
+        @click="filters = []"
+      >
+        Clear
+      </el-button>
     </div>
+
     <div class="inside">
       <el-table :data="filteredList" height="100%">
-        <el-table-column prop="name" label="Adress" width="200px">
+        <el-table-column
+          prop="name"
+          :label="'Adresses (' + filteredList.length + ')'"
+          width="200px"
+        >
           <template slot-scope="scope">
             <span
               @click="center = scope.row.coordinates"
@@ -175,6 +189,7 @@
 
         .cell {
           cursor: pointer;
+          user-select: none;
           span {
             word-break: keep-all;
           }
