@@ -73,6 +73,7 @@
     methods: {
       findGeoPoints() {
         if (this.locationObjects) this.$store.commit("setProcessStep", 2);
+        let counter = 0;
         for (let i = 0; i < this.locationObjects.length; i++) {
           let location = this.locationObjects[i];
           this.getDataFromExternalEndpoint(
@@ -91,7 +92,9 @@
               location.displayName = response.data[0].display_name;
             } else console.log("Couldn't find geolocation for: ", location);
 
-            if (i === this.locationObjects.length - 1) {
+            counter++;
+
+            if (counter === this.locationObjects.length) {
               const markers = [];
               this.locationObjects.forEach(i => {
                 if (i.geo != null)
@@ -108,7 +111,7 @@
               });
             }
             this.parsingProgress = Math.round(
-              (i / this.locationObjects.length) * 100
+              (counter / this.locationObjects.length) * 100
             );
           });
         }
