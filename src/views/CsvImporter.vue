@@ -77,8 +77,12 @@
         // Counter for finished requests
         let counter = 0;
 
-        // Get geolocation for every address using nominatim
-        for (let i = 0; i < this.locationObjects.length; i++) {
+        // Limit items to parse to 20
+        const itemsToParse =
+          this.locationObjects.length > 20 ? 20 : this.locationObjects.length;
+
+        // Get geolocation for first 20 addresses using nominatim
+        for (let i = 0; i < itemsToParse; i++) {
           let location = this.locationObjects[i];
           this.getDataFromExternalEndpoint(
             this.geoLocate(
@@ -100,7 +104,7 @@
             counter++;
 
             // If all requests are completed save data to store and go to next view
-            if (counter === this.locationObjects.length) {
+            if (counter === itemsToParse) {
               // Extract only needed data
               const markers = [];
               this.locationObjects.forEach(i => {
@@ -123,9 +127,7 @@
             }
 
             // Handle progress
-            this.parsingProgress = Math.round(
-              (counter / this.locationObjects.length) * 100
-            );
+            this.parsingProgress = Math.round((counter / itemsToParse) * 100);
           });
         }
       },
