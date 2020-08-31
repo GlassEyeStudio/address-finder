@@ -1,15 +1,18 @@
 <template>
   <div id="app">
-    <Map />
+    <Map v-if="false" />
+    <CsvImporter />
   </div>
 </template>
 
 <script>
   import Map from "@/components/Map";
+  import CsvImporter from "@/components/CsvImporter";
 
   export default {
     name: "App",
     components: {
+      CsvImporter,
       Map
     }
   };
