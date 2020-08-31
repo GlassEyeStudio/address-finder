@@ -5,6 +5,7 @@
       class="floating"
       type="success"
       v-if="$store.state.processStep === 3"
+      @click="restartApp"
     >
       New query
     </el-button>
@@ -18,10 +19,20 @@
 </template>
 
 <script>
+  import router from "@/router";
+
   export default {
     name: "App",
     created() {
       this.$store.commit("setProcessStep", 1);
+    },
+    methods: {
+      restartApp() {
+        router.push("/");
+        this.$nextTick(() => {
+          window.location.reload();
+        });
+      }
     }
   };
 </script>
