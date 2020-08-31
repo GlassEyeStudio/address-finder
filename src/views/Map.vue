@@ -1,17 +1,49 @@
 <template>
-  <div class="wrapper">
-    <l-map ref="myMap" @ready="mapsReady()" :zoom="zoom" :center="center">
-      <l-tile-layer :url="url" :attribution="attribution" />
-      <l-marker
-        :lat-lng="point.coordinates"
-        v-for="(point, index) in $store.state.markers"
-        :key="index"
+  <div class="wrapper map">
+    <div class="badges">
+      Categories:
+      <el-badge
+        class="item"
+        :value="category.value"
+        v-for="(category, index) in categories"
+        :key="'cat-' + index"
+        type="primary"
       >
-        <l-popup>
-          <span v-html="point.displayName" />
-        </l-popup>
-      </l-marker>
-    </l-map>
+        <el-button
+          size="small"
+          @click="toggleFilter(category.name)"
+          :type="filters.includes(category.name) ? 'primary' : 'plain'"
+        >
+          {{ category.name }}
+        </el-button>
+      </el-badge>
+    </div>
+    <div class="inside">
+      <el-table :data="filteredList" height="100%">
+        <el-table-column prop="name" label="Adress" width="200px">
+          <template slot-scope="scope">
+            <span
+              @click="center = scope.row.coordinates"
+              v-html="scope.row.name"
+            />
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <l-map ref="myMap" @ready="mapsReady()" :zoom="zoom" :center="center">
+        <l-tile-layer :url="url" :attribution="attribution" />
+        <l-marker
+          :lat-lng="point.coordinates"
+          v-for="(point, index) in filteredList"
+          :key="index"
+          :id="point.category"
+        >
+          <l-popup>
+            <span v-html="point.name" />
+          </l-popup>
+        </l-marker>
+      </l-map>
+    </div>
   </div>
 </template>
 
@@ -41,33 +73,113 @@
     data() {
       return {
         zoom: 13,
-        center: latLng(47.41322, -1.219482),
+        center: latLng(0, 0),
         url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         attribution:
           '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-        withPopup: latLng(47.41322, -1.219482),
-        withTooltip: latLng(47.41422, -1.250482),
-        currentZoom: 11.5,
-        currentCenter: latLng(47.41322, -1.219482),
         mapOptions: {
           zoomSnap: 0.5
         },
-        showMap: true,
-        markers: []
+        map: {},
+        categories: [],
+        filters: [],
+        filteredList: []
       };
     },
     methods: {
       mapsReady() {
-        if (!this.$store.state.markers.length > 0) this.$router.push("/");
+        if (!this.$store.state.markers.length > 0) {
+          this.$router.push("/");
+          return;
+        }
         this.map = this.$refs.myMap.mapObject;
+
+        this.setMapBounds();
+
+        this.getCategories();
+
+        this.filteredMarkersList();
+      },
+
+      setMapBounds() {
         const boundsMarkersArr = this.$store.state.markers.map(
           i => i.coordinates
         );
         const bounds = new latLngBounds(boundsMarkersArr);
-        this.map.fitBounds(bounds);
+        if (bounds) this.map.fitBounds(bounds);
+      },
+
+      getCategories() {
+        this.unique(this.$store.state.markers.map(i => i.category)).forEach(
+          i => {
+            this.categories.push({
+              name: i,
+              value: this.$store.state.markers.filter(j => j.category === i)
+                .length
+            });
+          }
+        );
+      },
+
+      unique(arr) {
+        return Array.from(new Set(arr));
+      },
+
+      toggleFilter(filterString) {
+        const index = this.filters.indexOf(filterString);
+        if (index > -1) {
+          this.filters.splice(index, 1);
+        } else this.filters.push(filterString);
+        this.filteredMarkersList();
+      },
+
+      filteredMarkersList() {
+        if (!this.filters.length) this.filteredList = this.$store.state.markers;
+        else
+          this.filteredList = this.$store.state.markers.filter(j =>
+            this.filters.includes(j.category)
+          );
       }
-    }
+    },
+    watch: {}
   };
 </script>
 
-<style scoped></style>
+<style lang="scss">
+  .map {
+    height: 700px;
+
+    .badges {
+      display: flex;
+      margin-bottom: 10px;
+      justify-content: center;
+      .el-button {
+        margin-left: 2rem;
+      }
+    }
+    .inside {
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+
+      .vue2leaflet-map {
+        max-width: calc(100% - 250px);
+        margin-left: 25px;
+      }
+
+      .el-table {
+        height: 100%;
+        display: block;
+
+        .cell {
+          cursor: pointer;
+          span {
+            word-break: keep-all;
+          }
+        }
+      }
+    }
+  }
+</style>
