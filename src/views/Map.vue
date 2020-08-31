@@ -1,53 +1,34 @@
 <template>
   <div class="wrapper">
-    <p>First marker is placed at {{ withPopup.lat }}, {{ withPopup.lng }}</p>
-    <p>Center is at {{ currentCenter }} and the zoom is: {{ currentZoom }}</p>
-    <button @click="showLongText">
-      Toggle long popup
-    </button>
-    <button @click="showMap = !showMap">
-      Toggle map
-    </button>
-    <l-map
-      ref="myMap"
-      @ready="mapsReady()"
-      :zoom="zoom"
-      :center="center"
-      @update:center="centerUpdate"
-      @update:zoom="zoomUpdate"
-    >
+    <l-map ref="myMap" @ready="mapsReady()" :zoom="zoom" :center="center">
       <l-tile-layer :url="url" :attribution="attribution" />
-      <l-marker :lat-lng="withPopup">
+      <l-marker
+        :lat-lng="point.coordinates"
+        v-for="(point, index) in $store.state.markers"
+        :key="index"
+      >
         <l-popup>
-          <div @click="innerClick">
-            I am a popup
-            <p v-show="showParagraph">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-              sed pretium nisl, ut sagittis sapien. Sed vel sollicitudin nisi.
-              Donec finibus semper metus id malesuada.
-            </p>
-          </div>
+          <span v-html="point.displayName" />
         </l-popup>
-      </l-marker>
-      <l-marker :lat-lng="withTooltip">
-        <l-tooltip :options="{ permanent: true, interactive: true }">
-          <div @click="innerClick">
-            I am a tooltip
-            <p v-show="showParagraph">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-              sed pretium nisl, ut sagittis sapien. Sed vel sollicitudin nisi.
-              Donec finibus semper metus id malesuada.
-            </p>
-          </div>
-        </l-tooltip>
       </l-marker>
     </l-map>
   </div>
 </template>
 
 <script>
-  import { latLng } from "leaflet";
-  import { LMap, LTileLayer, LMarker, LPopup, LTooltip } from "vue2-leaflet";
+  import { latLng, latLngBounds } from "leaflet";
+  import { LMap, LTileLayer, LMarker, LPopup } from "vue2-leaflet";
+
+  /* Missing markers fix */
+  import { Icon } from "leaflet";
+
+  delete Icon.Default.prototype._getIconUrl;
+  Icon.Default.mergeOptions({
+    iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
+    iconUrl: require("leaflet/dist/images/marker-icon.png"),
+    shadowUrl: require("leaflet/dist/images/marker-shadow.png")
+  });
+  /* End of missing markers fix */
 
   export default {
     name: "Map",
@@ -55,8 +36,7 @@
       LMap,
       LTileLayer,
       LMarker,
-      LPopup,
-      LTooltip
+      LPopup
     },
     data() {
       return {
@@ -69,28 +49,22 @@
         withTooltip: latLng(47.41422, -1.250482),
         currentZoom: 11.5,
         currentCenter: latLng(47.41322, -1.219482),
-        showParagraph: false,
         mapOptions: {
           zoomSnap: 0.5
         },
-        showMap: true
+        showMap: true,
+        markers: []
       };
     },
     methods: {
       mapsReady() {
+        if (!this.$store.state.markers.length > 0) this.$router.push("/");
         this.map = this.$refs.myMap.mapObject;
-      },
-      zoomUpdate(zoom) {
-        this.currentZoom = zoom;
-      },
-      centerUpdate(center) {
-        this.currentCenter = center;
-      },
-      showLongText() {
-        this.showParagraph = !this.showParagraph;
-      },
-      innerClick() {
-        alert("Click!");
+        const boundsMarkersArr = this.$store.state.markers.map(
+          i => i.coordinates
+        );
+        const bounds = new latLngBounds(boundsMarkersArr);
+        this.map.fitBounds(bounds);
       }
     }
   };

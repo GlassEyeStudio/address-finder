@@ -5,11 +5,11 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    points: []
+    markers: []
   },
   mutations: {
-    setPointsData: (state, pointsData) => {
-      state.points = pointsData;
+    setPointsData: (state, markers) => {
+      state.markers = markers;
     }
   }
 });
