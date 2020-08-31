@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <vue-csv-import
-      v-model="parseCsv"
+      v-model="locationObjects"
       :autoMatchFields="true"
       :autoMatchIgnoreCase="true"
       :map-fields="{
@@ -41,35 +41,36 @@
 
 <script>
   import { VueCsvImport } from "vue-csv-import";
+  import router from "@/router";
 
   export default {
     name: "CsvImporter",
     components: { VueCsvImport },
     data() {
       return {
-        parseCsv: [],
-        geopoints: []
+        locationObjects: []
       };
     },
     methods: {
       findGeoPoints() {
-        if (this.parseCsv)
-          this.parseCsv.forEach(i => {
+        if (this.locationObjects)
+          this.locationObjects.forEach(i => {
             this.getDataFromExternalEndpoint(
-              this.geolocate(i.city, i.state, i.zipCode, i.address)
+              this.geoLocate(i.city, i.state, i.zipCode, i.address)
             ).then(response => {
-              console.log(response);
               if (response.status === 200 && response.data && response.data[0])
                 i.geo = {
                   lat: response.data[0].lat,
                   long: response.data[0].lon
                 };
-              else console.log("couldnt find geolocation for: " + i.address);
+              else console.log("Couldn't find geolocation for: ", i);
             });
           });
+        this.$store.commit('setPointsData', this.locationObjects);
+        router.push("/map");
       },
 
-      geolocate(city, state, zipcode, address) {
+      geoLocate(city, state, zipcode, address) {
         return `https://nominatim.openstreetmap.org/search?city=${city}&state${state}&postalcode=${zipcode}&street=${address}&format=json`;
       },
 
