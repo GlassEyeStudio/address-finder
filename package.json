@@ -42,5 +42,8 @@
   },
   "prettier": {
     "vueIndentScriptAndStyle": true
+  },
+  "compilerOptions": {
+    "esModuleInterop": true
   }
 }
