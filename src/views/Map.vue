@@ -23,7 +23,7 @@
         v-if="filters.length > 0"
         type="danger"
         plain
-        @click="filters = []"
+        @click="clearFilters"
       >
         Clear
       </el-button>
@@ -141,6 +141,12 @@
         if (index > -1) {
           this.filters.splice(index, 1);
         } else this.filters.push(filterString);
+        this.filteredMarkersList();
+      },
+
+      // Clears filters list
+      clearFilters() {
+        this.filters = [];
         this.filteredMarkersList();
       },
 
