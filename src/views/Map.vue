@@ -51,7 +51,6 @@
           :lat-lng="point.coordinates"
           v-for="(point, index) in filteredList"
           :key="index"
-          :id="point.category"
           :icon="getIcon(categories.find(i => i.name === point.category).color)"
         >
           <l-icon-default class-name="someExtraClass" />
@@ -73,17 +72,6 @@
     LPopup,
     LIconDefault
   } from "vue2-leaflet";
-
-  /* Missing markers fix */
-  import { Icon } from "leaflet";
-
-  delete Icon.Default.prototype._getIconUrl;
-  Icon.Default.mergeOptions({
-    iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
-    iconUrl: require("leaflet/dist/images/marker-icon.png"),
-    shadowUrl: require("leaflet/dist/images/marker-shadow.png")
-  });
-  /* End of missing markers fix */
 
   export default {
     name: "Map",
